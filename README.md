@@ -9,7 +9,9 @@ This Plugin creates portals where the player can port/beam from one place to ano
 # Features in progress
 
 - Create Portals with multiple gates (e.g. for lifts)
+- Player menu
 - Admin menu
+- Dimension and IPL Support
 
 # Installation
 

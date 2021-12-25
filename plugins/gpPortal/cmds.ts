@@ -19,7 +19,7 @@ async function addportal(player: alt.Player) {
         options: [
             {
                 id: 'name',
-                desc: 'Name of new Portal or UID of existing Portal',
+                desc: 'Name of new or existing Portal',
                 placeholder: 'Portal Name',
                 type: InputOptionType.TEXT,
                 error: 'Must specify property name.',

@@ -17,10 +17,10 @@ This Plugin creates portals where the player can port/beam from one place to ano
 
 https://mygp.gumroad.com/l/portalplugin
     
-2. Copy Folder plugins/gpInteriors/ to your athena project under src/core/plugins/
+2. Copy Folder plugins/gpPortal/ to your athena project under src/core/plugins/
 3. Import server plugin in src/core/plugins/imports.ts:
 
-    ```import './gpPortals/index';```
+    ```import './gpPortal/index';```
 
 
 # Usage

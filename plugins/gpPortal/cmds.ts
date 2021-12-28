@@ -1,19 +1,31 @@
 import * as alt from 'alt-server';
 import { playerFuncs } from '../../server/extensions/Player';
 import ChatController from '../../server/systems/chat';
-import { INTERIOR_SYSTEM } from '../../shared-plugins/core-interiors/flags';
-import { Interior } from '../../shared-plugins/core-interiors/interfaces';
 import { PERMISSIONS } from '../../shared/flags/permissionFlags';
-import { InputMenu, InputOptionType, InputResult } from '../../shared/interfaces/inputMenus';
+import { InputMenu, InputOptionType, InputResult, SelectOption } from '../../shared/interfaces/inputMenus';
 import { Vector3 } from '../../shared/interfaces/vector';
 import { isFlagEnabled } from '../../shared/utility/flags';
 import { PortalSystem } from './system';
 import { Portal, Gate } from './interfaces';
+import { MARKER_TYPE } from '../../shared/enums/markerTypes';
 
-ChatController.addCommand('addportal', '/addportal [name] - Adds a portal at current position', PERMISSIONS.ADMIN, addportal);
+ChatController.addCommand(
+    'addportal',
+    '/addportal [name] - Adds a portal at current position',
+    PERMISSIONS.ADMIN,
+    addportal,
+);
 
 async function addportal(player: alt.Player) {
-    //TODO Select box    
+    let markerOptions = new Array<SelectOption>();
+    for (var key in MARKER_TYPE) {
+        var isValueProperty = parseInt(key) >= 0;
+        if (!isValueProperty) {
+            markerOptions.push({ text: key, value: MARKER_TYPE[key] });
+        }
+    }
+
+    //TODO Select box
     const menu: InputMenu = {
         title: 'Create Portal',
         options: [
@@ -30,6 +42,38 @@ async function addportal(player: alt.Player) {
                 placeholder: 'Gate Name',
                 type: InputOptionType.TEXT,
                 error: 'Must specify property name.',
+            },
+            {
+                id: 'gatemarker',
+                desc: 'Select a marker or none for hidden gate',
+                placeholder: '',
+                type: InputOptionType.CHOICE,
+                error: 'Must specify property name.',
+                choices: markerOptions,
+            },
+            {
+                id: 'gatemarkersize',
+                desc: 'Select a marker size',
+                placeholder: '',
+                type: InputOptionType.CHOICE,
+                error: 'Must specify property name.',
+                choices: [
+                    { text: 'small', value: '0.25' },
+                    { text: 'medium', value: '0.75' },
+                    { text: 'big', value: '1' },
+                ],
+            },
+            {
+                id: 'gateentity',
+                desc: 'Select the entity that can use the gate. Default: Person',
+                placeholder: '',
+                type: InputOptionType.CHOICE,
+                error: 'Must specify property name.',
+                choices: [
+                    { text: 'Person', value: 'person' },
+                    { text: 'Vehicle (not working -> in progress)', value: 'vehicle' },
+                    { text: 'All (not working -> in progress)', value: 'all' },
+                ],
             },
             // {
             //     id: 'gateposition',
@@ -72,7 +116,8 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
         return;
     }
 
-    const [name, gatename, gateposition, dimension, ipl] = results;
+    //Do not change order, must same like in addPortal method.
+    const [name, gatename, gatemarker, gatemarkersize, gateentity, gateposition, dimension, ipl] = results;
 
     if (!name || !gatename) {
         playerFuncs.emit.message(player, `Please make sure all fields are valid.`);
@@ -87,7 +132,7 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
     let gatePos: Vector3;
 
     if (!gateposition || !gateposition.value) {
-        gatePos = { "x": player.pos.x, "y": player.pos.y, "z": player.pos.z - 0.5 };
+        gatePos = { x: player.pos.x, y: player.pos.y, z: player.pos.z };
     } else {
         try {
             gatePos = JSON.parse(gateposition.value);
@@ -103,9 +148,9 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
     }
 
     let inAnotherDim = false;
-    if (!dimension || !dimension.value || dimension.value === "false") {
+    if (!dimension || !dimension.value || dimension.value === 'false') {
         inAnotherDim = false;
-    } else if (dimension.value === "false") {
+    } else if (dimension.value === 'false') {
         inAnotherDim = true;
     }
 
@@ -114,7 +159,21 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
         name: gatename.value,
         position: gatePos,
         isUnlocked: false,
-        inAnotherDimension: inAnotherDim
+        inAnotherDimension: inAnotherDim,
+    };
+
+    if (gatemarker.value === 'none') {
+        gateData.hidden = true;
+    } else {
+        gateData.markertype = parseInt(gatemarker.value);
+    }
+
+    if (gatemarkersize && gatemarkersize.value) {
+        gateData.markersize = parseFloat(gatemarkersize.value);
+    }
+
+    if (gateentity && gateentity.value) {
+        gateData.entity = gateentity.value;
     }
 
     if (ipl && ipl.value) {
@@ -136,7 +195,7 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
         const portalData: Portal = {
             name: name.value,
             gates: gates,
-            owner: player.data._id.toString()
+            owner: player.data._id.toString(),
         };
 
         uid = await PortalSystem.add(portalData);

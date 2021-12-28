@@ -38,18 +38,76 @@ export interface Gate {
     inAnotherDimension?: boolean
 
     /**
-     * Remove the inside colshape from creation process.
-     * @type {boolean}
-     * @memberof Interior
-     */
-    removeInsideColshape?: boolean;
-
-    /**
      * Removes text from the outside instance.
      * @type {boolean}
-     * @memberof Interior
+     * @memberof Gate
      */
     removeTextLabel?: boolean;
+
+    /**
+     * Marker type
+     * @type {number}
+     * @memberof Gate
+     */
+    markertype?: number;
+
+    /**
+     * Marker size
+     * @type {number}
+     * @memberof Gate
+     */
+    markersize?: number;
+
+    /**
+     * Marker color
+     * @type {number}
+     * @memberof Gate
+     */
+    markercolor?: number[];
+
+    /**
+     * Should the marker be slightly animated.
+     * @type {boolean}
+     * @memberof Gate
+     */
+    markerbobUpAndDown?: boolean;
+
+    /**
+     * Should the marker face the player's camera.
+     * @type {boolean}
+     * @memberof Gate
+     */
+    markerfaceCamera?: boolean;
+
+    /**
+     * Should the marker rotate to face the player.
+     * @type {boolean}
+     * @memberof Gate
+     */
+    markerrotate?: boolean;
+
+    /**
+     * Removes the marker from creation process.
+     * @type {boolean}
+     * @memberof Gate
+     */
+    hidden?: boolean;
+
+    /**
+     * The dimension to display this gate in.
+     * @type {number}
+     * @memberof Gate
+     */
+    dimension?: number;
+
+
+     /**
+     * The entity that can use this gate.
+     * @type {number}
+     * @memberof Gate
+     */
+    entity?: string;
+
 }
 
 export interface Portal {

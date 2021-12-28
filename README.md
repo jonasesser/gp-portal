@@ -5,6 +5,8 @@ This Plugin creates portals where the player can port/beam from one place to ano
 # Features
 
 - Create Portal with two gates
+- Choose markers and size
+- Teleport fade effect
 
 # Features in progress
 
@@ -24,6 +26,10 @@ https://mygp.gumroad.com/l/portalplugin
 
     ```import './gpPortal/index';```
 
+4. Copy Folder client-plugins/gpPortal/ to your athena project under src/core/client-plugins/
+5. Import client plugin in src/core/client-plugins/imports.ts:
+
+    ```import './gpPortal/index';```
 
 # Usage
 

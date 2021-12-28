@@ -1,4 +1,5 @@
 import * as alt from 'alt-server';
+import * as native from 'natives';
 import { PERMISSIONS } from '../../shared/flags/permissionFlags';
 import ChatController from '../../server/systems/chat';
 import Database from '@stuyk/ezmongodb';
@@ -11,6 +12,7 @@ import { ServerTextLabelController } from '../../server/streamers/textlabel';
 import { deepCloneObject } from '../../shared/utility/deepCopy';
 import { sha256Random } from '../../server/utility/encryption';
 import './cmds';
+import './prototypes';
 import { SYSTEM_EVENTS } from '../../shared/enums/system';
 import { playerFuncs } from '../../server/extensions/Player';
 
@@ -21,7 +23,6 @@ const NEW_LINE = `~n~`;
 const portals: Map<string, PortalInternal> = new Map();
 
 export class PortalSystem {
-
     static async init(): Promise<void> {
         await Database.createCollection(PORTAL_COLLECTIONS.Portals);
         const portals = await Database.fetchAllData<Portal>(PORTAL_COLLECTIONS.Portals);
@@ -47,12 +48,10 @@ export class PortalSystem {
      * @memberof InternalSystem
      */
     static create(portal: Portal) {
-
         const portalInfo: PortalInternal = {
             ...portal,
-            gatesInternal: new Array<GateInternal>()
+            gatesInternal: new Array<GateInternal>(),
         };
-
 
         for (let index = 0; index < portal.gates.length; index++) {
             let gateInfo = PortalSystem.createGate(portalInfo, portal.gates[index], index);
@@ -62,18 +61,17 @@ export class PortalSystem {
         portals.set(portalInfo.uid, portalInfo);
     }
 
-
     /**
-       * Creates an Gate for an portal in-game that can be interacted with;
-       * this does not insert it into the database and should only be called via InteriorSystem.
-       *
-       * @static
-       * @param {Interior} interior
-       * @memberof InternalSystem
-       */
+     * Creates an Gate for an portal in-game that can be interacted with;
+     * this does not insert it into the database and should only be called via InteriorSystem.
+     *
+     * @static
+     * @param {Interior} interior
+     * @memberof InternalSystem
+     */
     static createGate(portal: PortalInternal, gate: Gate, indexTmp?: number): GateInternal {
         const gateInfo: GateInternal = {
-            ...gate
+            ...gate,
         };
 
         let index = portal.gatesInternal.length;
@@ -89,14 +87,56 @@ export class PortalSystem {
 
         portal._id = portal._id.toString();
 
-        ServerMarkerController.append({
-            uid: `${portal.uid}-gate-marker-${index}`,
-            maxDistance: 15,
-            color: new alt.RGBA(255, 255, 0, 75),
-            pos: gate.position,
-            scale: { x: 0.25, y: 0.25, z: 0.25 },
-            type: 0,
-        });
+        //defaults
+        let markertype = 0;
+        let markersize = 0.25;
+        let markercolor = new alt.RGBA(255, 255, 0, 75);
+        let dimension = 0;
+        let markerbobUpAndDown = false;
+        let markerfaceCamera = false;
+        let markerrotate = false;
+
+        if (gate.markertype) markertype = gate.markertype;
+        if (gate.markersize) markersize = gate.markersize;
+        if (gate.markercolor)
+            markercolor = new alt.RGBA(
+                gate.markercolor[0],
+                gate.markercolor[1],
+                gate.markercolor[2],
+                gate.markercolor[3],
+            );
+        if (gate.markerbobUpAndDown) markerbobUpAndDown = gate.markerbobUpAndDown;
+        if (gate.markerfaceCamera) markerfaceCamera = gate.markerfaceCamera;
+        if (gate.markerrotate) markerrotate = gate.markerrotate;
+        if (gate.dimension) dimension = gate.dimension;
+
+        alt.logWarning('markertype: ' + markertype);
+        alt.logWarning('markersize: ' + markersize);
+        alt.logWarning('markercolor: ' + markercolor);
+        alt.logWarning('markerbobUpAndDown: ' + markerbobUpAndDown);
+        alt.logWarning('markerfaceCamera: ' + markerfaceCamera);
+        alt.logWarning('markerrotate: ' + markerrotate);
+        alt.logWarning('dimension: ' + dimension);
+
+        if (!gate.hidden) {
+            //Z correction for some markers
+            if ([1, 8, 9, 23, 25, 26, 27, 28, 43].includes(gate.markertype)) {
+                gate.position.z = gate.position.z - 0.99;
+            }
+
+            ServerMarkerController.append({
+                uid: `${portal.uid}-gate-marker-${index}`,
+                maxDistance: 15,
+                color: markercolor,
+                pos: gate.position,
+                scale: { x: markersize, y: markersize, z: markersize },
+                type: markertype,
+                bobUpAndDown: markerbobUpAndDown,
+                faceCamera: markerfaceCamera,
+                rotate: markerrotate,
+                dimension: dimension,
+            });
+        }
 
         gateInfo.shape = InteractionController.add({
             description: LOCALE_GATE_VIEW.LABEL_OPEN_PORTAL_MENU,
@@ -105,12 +145,12 @@ export class PortalSystem {
             identifier: `${portal.uid}-gate-interaction-${index}`,
             data: [portal.uid, index],
             callback: PortalSystem.showMenu,
+            dimension: dimension,
         });
 
         // PortalSystem.refreshGateText(portal, index);
         return gateInfo;
     }
-
 
     /**
      * Add an portal to the database and system.
@@ -137,11 +177,11 @@ export class PortalSystem {
     }
 
     /**
-    * Add an gate for existing portal to the database and system.
-    * @static
-    * @param {Portal} portal
-    * @memberof PortalSystem
-    */
+     * Add an gate for existing portal to the database and system.
+     * @static
+     * @param {Portal} portal
+     * @memberof PortalSystem
+     */
     static async addGate(portal: Portal, gate: Gate): Promise<string | null> {
         await PortalSystem.hasInitialized();
 
@@ -199,12 +239,12 @@ export class PortalSystem {
     }
 
     /**
-       * A way to wait for initial portals to load from database
-       * before attempting to add or remove any of them.
-       * @static
-       * @return {Promise<void>}
-       * @memberof PortalSystem
-       */
+     * A way to wait for initial portals to load from database
+     * before attempting to add or remove any of them.
+     * @static
+     * @return {Promise<void>}
+     * @memberof PortalSystem
+     */
     static hasInitialized(): Promise<void> {
         return new Promise((resolve: Function) => {
             const interval = alt.setInterval(() => {
@@ -219,12 +259,12 @@ export class PortalSystem {
     }
 
     /**
-    * Get an portal based on uid.
-    * @static
-    * @param {string} uid
-    * @return {Promise<Portal>}
-    * @memberof PortalSystem
-    */
+     * Get an portal based on uid.
+     * @static
+     * @param {string} uid
+     * @return {Promise<Portal>}
+     * @memberof PortalSystem
+     */
     static async get(uid: string): Promise<PortalInternal> {
         await PortalSystem.hasInitialized();
 
@@ -236,32 +276,31 @@ export class PortalSystem {
     }
 
     /**
-    * Get an portal based on name.
-    * @static
-    * @param {string} uid
-    * @return {Promise<Portal>}
-    * @memberof PortalSystem
-    */
+     * Get an portal based on name.
+     * @static
+     * @param {string} uid
+     * @return {Promise<Portal>}
+     * @memberof PortalSystem
+     */
     static async getByName(name: string): Promise<PortalInternal> {
         await PortalSystem.hasInitialized();
 
         for (let [key, value] of portals.entries()) {
-            if (value.name === name)
-                return portals.get(key);
+            if (value.name === name) return portals.get(key);
         }
 
         return null;
     }
 
     /**
-    * Usually called internally to show a menu to the player.
-    * This menu is called through the interaction controller.
-    * @static
-    * @param {alt.Player} player
-    * @param {string} uid
-    * @return {*}
-    * @memberof PortalSystem
-    */
+     * Usually called internally to show a menu to the player.
+     * This menu is called through the interaction controller.
+     * @static
+     * @param {alt.Player} player
+     * @param {string} uid
+     * @return {*}
+     * @memberof PortalSystem
+     */
     static async showMenu(player: alt.Player, uid: string, gateIndex: number) {
         if (!player || !player.valid || player.data.isDead || !uid) {
             return;
@@ -296,7 +335,16 @@ export class PortalSystem {
             }
 
             playerFuncs.set.frozen(player, true);
-            playerFuncs.safe.setPosition(player, exit.position.x, exit.position.y, exit.position.z);
+
+            if (!entrance.entity || entrance.entity === 'person' || (entrance.entity === 'all' && !player.vehicle)) {
+                // playerFuncs.safe.setPosition(player, exit.position.x, exit.position.y, exit.position.z);
+                //Set Position with fade.
+                player.setPortalPosition(exit.position.x, exit.position.y, exit.position.z);
+            } else if (entrance.entity === 'vehicle' && player.vehicle) {
+                //TODO Port only vehicle, not player.
+            } else if (entrance.entity === 'all' && player.vehicle) {
+                player.setPortalPositionKeepVehicle(exit.position.x, exit.position.y, exit.position.z);
+            }
 
             // Freeze Player for exit gate Loading
             alt.setTimeout(() => {
@@ -306,5 +354,4 @@ export class PortalSystem {
             alt.emitClient(player, PORTAL_GATE_INTERACTIONS.SHOW_MENU, portal);
         }
     }
-
 }

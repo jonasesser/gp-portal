@@ -1,13 +1,8 @@
 import * as alt from 'alt-server';
-import * as native from 'natives';
-import { PERMISSIONS } from '../../shared/flags/permissionFlags';
-import ChatController from '../../server/systems/chat';
 import Database from '@stuyk/ezmongodb';
-import { PORTAL_COLLECTIONS, PORTAL_GATE_INTERACTIONS } from './enums';
-import { Gate, GateInternal, Portal, PortalInternal } from './interfaces';
+import { PORTAL_COLLECTIONS, PORTAL_GATE_INTERACTIONS } from '../../shared-plugins/gpPortal/enums';
 import { ServerMarkerController } from '../../server/streamers/marker';
 import { InteractionController } from '../../server/systems/interaction';
-import { LOCALE_GATE_VIEW } from './locales';
 import { ServerTextLabelController } from '../../server/streamers/textlabel';
 import { deepCloneObject } from '../../shared/utility/deepCopy';
 import { sha256Random } from '../../server/utility/encryption';
@@ -15,6 +10,8 @@ import './cmds';
 import './prototypes';
 import { SYSTEM_EVENTS } from '../../shared/enums/system';
 import { playerFuncs } from '../../server/extensions/Player';
+import { Gate, GateInternal, Portal, PortalInternal } from '../../shared-plugins/gpPortal/interfaces';
+import { LOCALE_GATE_VIEW } from '../../shared-plugins/gpPortal/locales';
 
 let nextDimension = 1000000;
 let isInitializing = true;
@@ -37,6 +34,8 @@ export class PortalSystem {
         }
 
         isInitializing = false;
+
+        alt.onClient(PORTAL_GATE_INTERACTIONS.PORT, PortalSystem.portToGate);
     }
 
     /**
@@ -293,6 +292,50 @@ export class PortalSystem {
     }
 
     /**
+     * Teleport to gate
+     * @static
+     * @param {alt.Player} player
+     * @param {string} uid
+     * @param {number} gateEntrance
+     * @param {number} gateExit
+     * @return {*}
+     * @memberof PortalSystem
+     */
+    static async portToGate(player: alt.Player, uid: string, gateEntrance: number, gateExit: number) {
+        if (!player || !player.valid || player.data.isDead || !uid) {
+            return;
+        }
+
+        const portal = await PortalSystem.get(uid);
+        if (!portal) {
+            return;
+        }
+
+        let entrance = portal.gates[gateEntrance];
+        let exit = portal.gates[gateExit];
+
+        if (exit.ipl) {
+            alt.emitClient(player, SYSTEM_EVENTS.IPL_LOAD, exit.ipl);
+        }
+
+        playerFuncs.set.frozen(player, true);
+
+        if (!entrance.entity || entrance.entity === 'person' || (entrance.entity === 'all' && !player.vehicle)) {
+            //Set Position with fade.
+            player.setPortalPosition(exit.position.x, exit.position.y, exit.position.z);
+        } else if (entrance.entity === 'vehicle' && player.vehicle) {
+            //TODO Port only vehicle, not player.
+        } else if (entrance.entity === 'all' && player.vehicle) {
+            player.setPortalPositionKeepVehicle(exit.position.x, exit.position.y, exit.position.z);
+        }
+
+        // Freeze Player for exit gate Loading
+        alt.setTimeout(() => {
+            playerFuncs.set.frozen(player, false);
+        }, 1000);
+    }
+
+    /**
      * Usually called internally to show a menu to the player.
      * This menu is called through the interaction controller.
      * @static
@@ -318,40 +361,14 @@ export class PortalSystem {
             delete portal.gatesInternal[index].ipl;
         }
 
-        //TODO Show menu if Admin
-        //TODO Show select menu if more than two gates
-        //Jump if only two gates there
+        //Jump if only two gates there, TODO: Show Admin menu, if admin has key in inventar.
         if (portal.gates.length == 2) {
-            let entrance = portal.gates[0];
-            let exit = portal.gates[1];
+            let entrance = gateIndex == 1 ? 1 : 0;
+            let exit = gateIndex == 1 ? 0 : 1;
 
-            if (gateIndex == 1) {
-                entrance = portal.gates[1];
-                exit = portal.gates[0];
-            }
-
-            if (exit.ipl) {
-                alt.emitClient(player, SYSTEM_EVENTS.IPL_LOAD, exit.ipl);
-            }
-
-            playerFuncs.set.frozen(player, true);
-
-            if (!entrance.entity || entrance.entity === 'person' || (entrance.entity === 'all' && !player.vehicle)) {
-                // playerFuncs.safe.setPosition(player, exit.position.x, exit.position.y, exit.position.z);
-                //Set Position with fade.
-                player.setPortalPosition(exit.position.x, exit.position.y, exit.position.z);
-            } else if (entrance.entity === 'vehicle' && player.vehicle) {
-                //TODO Port only vehicle, not player.
-            } else if (entrance.entity === 'all' && player.vehicle) {
-                player.setPortalPositionKeepVehicle(exit.position.x, exit.position.y, exit.position.z);
-            }
-
-            // Freeze Player for exit gate Loading
-            alt.setTimeout(() => {
-                playerFuncs.set.frozen(player, false);
-            }, 1000);
+            PortalSystem.portToGate(player, uid, entrance, exit);
         } else {
-            alt.emitClient(player, PORTAL_GATE_INTERACTIONS.SHOW_MENU, portal);
+            alt.emitClient(player, PORTAL_GATE_INTERACTIONS.SHOW_MENU, portal, gateIndex);
         }
     }
 }

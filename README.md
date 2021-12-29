@@ -1,5 +1,7 @@
 # altv-athena-plugin-portal
 
+![Alt text](pic2.png?raw=true "portal plugin")
+
 This Plugin creates portals where the player can port/beam from one place to another.
 
 # Features
@@ -7,13 +9,14 @@ This Plugin creates portals where the player can port/beam from one place to ano
 - Create Portal with two gates
 - Choose markers and size
 - Teleport fade effect
+- Create Portals with multiple gates (e.g. for lifts)
+- Player menu
 
 # Features in progress
 
-- Create Portals with multiple gates (e.g. for lifts)
-- Player menu
 - Admin menu
 - Dimension and IPL Support
+- Key Support
 
 # Installation
 
@@ -31,6 +34,10 @@ https://mygp.gumroad.com/l/portalplugin
 
     ```import './gpPortal/index';```
 
+
+6. Copy Folder shared-plugins/gpPortal/ to your athena project under src/core/shared-plugins/
+
+
 # Usage
 
 1. In-Game as administrator
@@ -40,4 +47,14 @@ https://mygp.gumroad.com/l/portalplugin
 2. See video
 
 https://youtu.be/7Nygyl0uFA0
+
+3. Creation Menu
+
+4. Admin Menu (Only visible if portal has more than 2 gates or admin has master key)
+
+5. Player Menu (Only visible if portal has more than 2 gates)
+
+![Alt text](playermenu.png?raw=true "player menu")
+
+
 

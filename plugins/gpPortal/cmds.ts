@@ -6,8 +6,8 @@ import { InputMenu, InputOptionType, InputResult, SelectOption } from '../../sha
 import { Vector3 } from '../../shared/interfaces/vector';
 import { isFlagEnabled } from '../../shared/utility/flags';
 import { PortalSystem } from './system';
-import { Portal, Gate } from './interfaces';
 import { MARKER_TYPE } from '../../shared/enums/markerTypes';
+import { Gate, Portal } from '../../shared-plugins/gpPortal/interfaces';
 
 ChatController.addCommand(
     'addportal',
@@ -18,6 +18,7 @@ ChatController.addCommand(
 
 async function addportal(player: alt.Player) {
     let markerOptions = new Array<SelectOption>();
+    markerOptions.push({ text: 'none', value: 'none' });
     for (var key in MARKER_TYPE) {
         var isValueProperty = parseInt(key) >= 0;
         if (!isValueProperty) {

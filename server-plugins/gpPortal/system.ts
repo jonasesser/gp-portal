@@ -6,12 +6,14 @@ import { InteractionController } from '../../server/systems/interaction';
 import { ServerTextLabelController } from '../../server/streamers/textlabel';
 import { deepCloneObject } from '../../shared/utility/deepCopy';
 import { sha256Random } from '../../server/utility/encryption';
-import './cmds';
-import './prototypes';
 import { SYSTEM_EVENTS } from '../../shared/enums/system';
-import { playerFuncs } from '../../server/extensions/Player';
+import { playerFuncs } from '../../server/extensions/extPlayer';
 import { Gate, GateInternal, Portal, PortalInternal } from '../../shared-plugins/gpPortal/interfaces';
 import { LOCALE_GATE_VIEW } from '../../shared-plugins/gpPortal/locales';
+import { GP_Events_Portal } from '../../shared-plugins/gpPortal/events';
+import { GP_Portal_Enitities } from '../../shared-plugins/gpPortal/enums';
+import './cmds';
+import './prototypes';
 
 let nextDimension = 1000000;
 let isInitializing = true;
@@ -94,6 +96,8 @@ export class PortalSystem {
         let markerbobUpAndDown = false;
         let markerfaceCamera = false;
         let markerrotate = false;
+        let isPlayerOnly = true;
+        let isVehicleOnly = false;
 
         if (gate.markertype) markertype = gate.markertype;
         if (gate.markersize) markersize = gate.markersize;
@@ -108,26 +112,27 @@ export class PortalSystem {
         if (gate.markerfaceCamera) markerfaceCamera = gate.markerfaceCamera;
         if (gate.markerrotate) markerrotate = gate.markerrotate;
         if (gate.dimension) dimension = gate.dimension;
-
-        alt.logWarning('markertype: ' + markertype);
-        alt.logWarning('markersize: ' + markersize);
-        alt.logWarning('markercolor: ' + markercolor);
-        alt.logWarning('markerbobUpAndDown: ' + markerbobUpAndDown);
-        alt.logWarning('markerfaceCamera: ' + markerfaceCamera);
-        alt.logWarning('markerrotate: ' + markerrotate);
-        alt.logWarning('dimension: ' + dimension);
+        if (gate.entity === GP_Portal_Enitities.Vehicle) {
+            isPlayerOnly = false;
+            isVehicleOnly = true;
+        } else if (gate.entity === GP_Portal_Enitities.All) {
+            isPlayerOnly = false;
+        }
 
         if (!gate.hidden) {
             //Z correction for some markers
+            let markerposition = null;
             if ([1, 8, 9, 23, 25, 26, 27, 28, 43].includes(gate.markertype)) {
-                gate.position.z = gate.position.z - 0.99;
+                markerposition = { x: gate.position.x, y: gate.position.y, z: gate.position.z + 0.02 };
+            } else {
+                markerposition = { x: gate.position.x, y: gate.position.y, z: gate.position.z + 0.5 };
             }
 
             ServerMarkerController.append({
-                uid: `${portal.uid}-gate-marker-${index}`,
+                uid: `${portal.uid}-gate-${gate.name}-marker-${index}`,
                 maxDistance: 15,
                 color: markercolor,
-                pos: gate.position,
+                pos: markerposition,
                 scale: { x: markersize, y: markersize, z: markersize },
                 type: markertype,
                 bobUpAndDown: markerbobUpAndDown,
@@ -140,11 +145,14 @@ export class PortalSystem {
         gateInfo.shape = InteractionController.add({
             description: LOCALE_GATE_VIEW.LABEL_OPEN_PORTAL_MENU,
             position: gate.position,
-            type: `portalgate`,
-            identifier: `${portal.uid}-gate-interaction-${index}`,
+            uid: `${portal.uid}-gate-${gate.name}-interaction-${index}`,
             data: [portal.uid, index],
             callback: PortalSystem.showMenu,
             dimension: dimension,
+            range: 2,
+            isVehicleOnly: isVehicleOnly,
+            isPlayerOnly: isPlayerOnly,
+            debug: true,
         });
 
         // PortalSystem.refreshGateText(portal, index);
@@ -224,13 +232,13 @@ export class PortalSystem {
             z: gate.position.z + 0.75,
         };
 
-        ServerTextLabelController.remove(`${portal.uid}-gate-textlabel-${index}`);
+        ServerTextLabelController.remove(`${portal.uid}-gate-${gate.name}-textlabel-${index}`);
         if (gate.removeTextLabel) {
             return;
         }
 
         ServerTextLabelController.append({
-            uid: `${portal.uid}-gate-textlabel-${index}`,
+            uid: `${portal.uid}-gate-${gate.name}-textlabel-${index}`,
             pos: aboveGroundOutside,
             data: name,
             maxDistance: 10,
@@ -320,13 +328,49 @@ export class PortalSystem {
 
         playerFuncs.set.frozen(player, true);
 
+        let exitposition = new alt.Vector3(exit.position.x, exit.position.y, exit.position.z + 0.75);
+        let exitrotation = null;
+        if (exit.rotation) {
+            exitrotation = new alt.Vector3(exit.rotation.x, exit.rotation.y, exit.rotation.z);
+        } else if (player.vehicle) {
+            exitrotation = player.vehicle.rot;
+        } else {
+            exitrotation = player.rot;
+        }
+
         if (!entrance.entity || entrance.entity === 'person' || (entrance.entity === 'all' && !player.vehicle)) {
             //Set Position with fade.
-            player.setPortalPosition(exit.position.x, exit.position.y, exit.position.z);
+            player.setPortalPosition(exitposition, exitrotation);
         } else if (entrance.entity === 'vehicle' && player.vehicle) {
-            //TODO Port only vehicle, not player.
+            //Set vehicle position only - no fade.
+            let vehicle = player.vehicle;
+            alt.emitClient(player, GP_Events_Portal.LeaveVehicle);
+            alt.setTimeout(async () => {
+                vehicle.pos = exitposition;
+                vehicle.rot = exitrotation;
+            }, 3000);
         } else if (entrance.entity === 'all' && player.vehicle) {
-            player.setPortalPositionKeepVehicle(exit.position.x, exit.position.y, exit.position.z);
+            if (exit.experimentalgate) {
+                if (exit.experimentalgate === 'speed') {
+                    player.setPortalPositionKeepVehicleWithVelocity(
+                        exitposition,
+                        exitrotation,
+                        player.vehicle.velocity,
+                        1,
+                    );
+                } else if (exit.experimentalgate === 'boost') {
+                    player.setPortalPositionKeepVehicleWithVelocity(
+                        exitposition,
+                        exitrotation,
+                        player.vehicle.velocity,
+                        3,
+                    );
+                }
+            }
+
+            if (!exit.experimentalgate || exit.experimentalgate === 'none') {
+                player.setPortalPositionKeepVehicle(exitposition, exitrotation);
+            }
         }
 
         // Freeze Player for exit gate Loading

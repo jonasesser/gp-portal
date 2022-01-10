@@ -1,5 +1,5 @@
 import * as alt from 'alt-server';
-import { playerFuncs } from '../../server/extensions/Player';
+import { playerFuncs } from '../../server/extensions/extPlayer';
 import ChatController from '../../server/systems/chat';
 import { PERMISSIONS } from '../../shared/flags/permissionFlags';
 import { InputMenu, InputOptionType, InputResult, SelectOption } from '../../shared/interfaces/inputMenus';
@@ -8,6 +8,7 @@ import { isFlagEnabled } from '../../shared/utility/flags';
 import { PortalSystem } from './system';
 import { MARKER_TYPE } from '../../shared/enums/markerTypes';
 import { Gate, Portal } from '../../shared-plugins/gpPortal/interfaces';
+import { GP_Portal_Enitities } from '../../shared-plugins/gpPortal/enums';
 
 ChatController.addCommand(
     'addportal',
@@ -71,9 +72,32 @@ async function addportal(player: alt.Player) {
                 type: InputOptionType.CHOICE,
                 error: 'Must specify property name.',
                 choices: [
-                    { text: 'Person', value: 'person' },
-                    { text: 'Vehicle (not working -> in progress)', value: 'vehicle' },
-                    { text: 'All (not working -> in progress)', value: 'all' },
+                    { text: 'Person', value: GP_Portal_Enitities.Person },
+                    { text: 'Vehicle', value: GP_Portal_Enitities.Vehicle },
+                    { text: 'All', value: GP_Portal_Enitities.All },
+                ],
+            },
+            {
+                id: 'setgaterotation',
+                desc: 'User current persons rotation for gate exit',
+                placeholder: '',
+                type: InputOptionType.CHOICE,
+                error: 'Must specify property name.',
+                choices: [
+                    { text: 'Yes', value: 'true' },
+                    { text: 'No', value: 'false' },
+                ],
+            },
+            {
+                id: 'experimentalgate',
+                desc: 'Experimental Gate',
+                placeholder: '',
+                type: InputOptionType.CHOICE,
+                error: 'Must specify property name.',
+                choices: [
+                    { text: 'None', value: 'none' },
+                    { text: 'Speed', value: 'speed' },
+                    { text: 'SpeedBoost', value: 'boost' },
                 ],
             },
             // {
@@ -118,7 +142,18 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
     }
 
     //Do not change order, must same like in addPortal method.
-    const [name, gatename, gatemarker, gatemarkersize, gateentity, gateposition, dimension, ipl] = results;
+    const [
+        name,
+        gatename,
+        gatemarker,
+        gatemarkersize,
+        gateentity,
+        setgaterotation,
+        experimentalgate,
+        gateposition,
+        dimension,
+        ipl,
+    ] = results;
 
     if (!name || !gatename) {
         playerFuncs.emit.message(player, `Please make sure all fields are valid.`);
@@ -133,7 +168,7 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
     let gatePos: Vector3;
 
     if (!gateposition || !gateposition.value) {
-        gatePos = { x: player.pos.x, y: player.pos.y, z: player.pos.z };
+        gatePos = { x: player.pos.x, y: player.pos.y, z: player.pos.z - 1 };
     } else {
         try {
             gatePos = JSON.parse(gateposition.value);
@@ -161,7 +196,12 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
         position: gatePos,
         isUnlocked: false,
         inAnotherDimension: inAnotherDim,
+        experimentalgate: experimentalgate.value,
     };
+
+    if (setgaterotation.value === 'true') {
+        gateData.rotation = player.rot;
+    }
 
     if (gatemarker.value === 'none') {
         gateData.hidden = true;
@@ -195,6 +235,7 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
 
         const portalData: Portal = {
             name: name.value,
+            uid: 'portal-' + name.value,
             gates: gates,
             owner: player.data._id.toString(),
         };

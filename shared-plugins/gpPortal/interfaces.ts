@@ -1,8 +1,6 @@
-import * as alt from 'alt-server';
 import { Vector3 } from '../../shared/interfaces/vector';
 
 export interface Gate {
-
     /**
      * The name of the gate.
      * @type {string}
@@ -11,11 +9,18 @@ export interface Gate {
     name: string;
 
     /**
-    * The location for the portal gate
-    * @type {Vector3}
-    * @memberof Gate
-    */
+     * The location for the portal gate
+     * @type {Vector3}
+     * @memberof Gate
+     */
     position: Vector3;
+
+    /**
+     * The rotation for the portal gate exit
+     * @type {Vector3}
+     * @memberof Gate
+     */
+    rotation?: Vector3;
 
     /**
      * Optional IPL to associate with this gate.
@@ -25,17 +30,17 @@ export interface Gate {
     ipl?: string;
 
     /**
-    * Is this portals gate currently unlocked?
-    * @type {boolean}
-    * @memberof Gate
-    */
+     * Is this portals gate currently unlocked?
+     * @type {boolean}
+     * @memberof Gate
+     */
     isUnlocked?: boolean;
 
     /**
-    * Is this portals gate in another dimension?
-    * @memberof Gate
-    */
-    inAnotherDimension?: boolean
+     * Is this portals gate in another dimension?
+     * @memberof Gate
+     */
+    inAnotherDimension?: boolean;
 
     /**
      * Removes text from the outside instance.
@@ -100,14 +105,14 @@ export interface Gate {
      */
     dimension?: number;
 
-
-     /**
+    /**
      * The entity that can use this gate.
      * @type {number}
      * @memberof Gate
      */
     entity?: string;
 
+    experimentalgate?: string;
 }
 
 export interface Portal {
@@ -157,18 +162,15 @@ export interface Portal {
 }
 
 export interface PortalInternal extends Portal {
-
     /**
-    * The location for the portal gate
-    * @type {Vector3}
-    * @memberof Portal
-    */
+     * The location for the portal gate
+     * @type {Vector3}
+     * @memberof Portal
+     */
     gatesInternal?: GateInternal[];
-
 }
 
 export interface GateInternal extends Gate {
-
     /**
      * Automatically generated dimension for this gate.
      * @type {number}
@@ -178,10 +180,10 @@ export interface GateInternal extends Gate {
 
     /**
      * The share used for the gate.
-     * @type {alt.Colshape}
+     * @type {string}
      * @memberof InteriorInternal
      */
-    shape?: alt.Colshape;
+    shape?: string;
 
     /**
      * Players who were inside this interior.
@@ -191,4 +193,3 @@ export interface GateInternal extends Gate {
      */
     players?: Array<number>;
 }
-

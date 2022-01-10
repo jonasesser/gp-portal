@@ -9,6 +9,9 @@ import { Portal } from '../../shared-plugins/gpPortal/interfaces';
 import { LOCALE_GATE_VIEW } from '../../shared-plugins/gpPortal/locales';
 import { PLAYER_SYNCED_META } from '../../shared/enums/playerSynced';
 import { InputOptionType, InputResult } from '../../shared/interfaces/inputMenus';
+import { GP_Events_Portal } from '../../shared-plugins/gpPortal/events';
+
+let currentVehicleSpeed = null;
 
 function initialCheck(): boolean {
     if (alt.Player.local.vehicle) {
@@ -111,13 +114,40 @@ function showMenu(portal: Portal, gateIndex: number) {
 
 alt.onServer(PORTAL_GATE_INTERACTIONS.SHOW_MENU, showMenu);
 
-alt.onServer('fadeOut', () => {
+alt.onServer(GP_Events_Portal.FadeOut, () => {
     native.doScreenFadeOut(200);
     alt.setTimeout(() => {
-        native.doScreenFadeIn(200);
+        native.setGameplayCamRelativeHeading(0.0);
+        native.doScreenFadeIn(300);
+    }, 600);
+});
+
+alt.onServer(GP_Events_Portal.SaveCurrentVehicleSpeed, () => {
+    let vehicle = alt.Player.local.vehicle;
+    currentVehicleSpeed = vehicle.speed;
+});
+
+alt.onServer(GP_Events_Portal.SetVehicleSpeed, (velocity: alt.Vector3, rotation: alt.Vector3, boost: number) => {
+    alt.setTimeout(() => {
+        let vehicle = alt.Player.local.vehicle;
+        // alt.setRotationVelocity(vehicle.scriptID, rotation.x, rotation.y, rotation.z);
+        alt.log('Speed: ' + currentVehicleSpeed);
+        native.setVehicleForwardSpeed(vehicle.scriptID, currentVehicleSpeed * boost);
+        // native.applyForceToEntityCenterOfMass
+        // native.applyForceToEntity
     }, 350);
 });
 
-alt.onServer('setPortalPositionKeepVehicle', (x, y, z) => {
-    native.setPedCoordsKeepVehicle(this, x, y, z);
+alt.onServer(GP_Events_Portal.LeaveVehicle, () => {
+    let vehicle = alt.Player.local.vehicle;
+    if (vehicle) {
+        // native.taskEveryoneLeaveVehicle(alt.Player.local.vehicle);
+        native.taskLeaveVehicle(alt.Player.local.scriptID, vehicle, 0);
+        for (let index = 0; index < 10; index++) {
+            let ped = native.getPedInVehicleSeat(vehicle, index, false);
+            if (ped) {
+                native.taskLeaveVehicle(ped, vehicle, 0);
+            }
+        }
+    }
 });

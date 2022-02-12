@@ -78,6 +78,17 @@ async function addportal(player: alt.Player) {
                 ],
             },
             {
+                id: 'dimension',
+                desc: 'Create gate in another dimension',
+                placeholder: '',
+                type: InputOptionType.CHOICE,
+                error: 'Must specify property name.',
+                choices: [
+                    { text: 'Yes', value: 'true' },
+                    { text: 'No', value: 'false' },
+                ],
+            },
+            {
                 id: 'setgaterotation',
                 desc: 'User current persons rotation for gate exit',
                 placeholder: '',
@@ -86,6 +97,29 @@ async function addportal(player: alt.Player) {
                 choices: [
                     { text: 'Yes', value: 'true' },
                     { text: 'No', value: 'false' },
+                ],
+            },
+            {
+                id: 'autotrigger',
+                desc: 'Should this gate automatacally trigger, no E key needed!',
+                placeholder: '',
+                type: InputOptionType.CHOICE,
+                error: 'Must specify property name.',
+                choices: [
+                    { text: 'Yes', value: 'true' },
+                    { text: 'No', value: 'false' },
+                ],
+            },
+            {
+                id: 'effect',
+                desc: 'Gate effect',
+                placeholder: '',
+                type: InputOptionType.CHOICE,
+                error: 'Must specify property name.',
+                choices: [
+                    { text: 'None', value: 'none' },
+                    { text: 'Fade', value: 'fade' },
+                    { text: 'Space (Experimental)', value: 'space' },
                 ],
             },
             {
@@ -106,13 +140,6 @@ async function addportal(player: alt.Player) {
             //     placeholder: `{ "x": ${player.pos.x}, "y": ${player.pos.y}, "z": ${player.pos.z} }`,
             //     type: InputOptionType.TEXT,
 
-            //     error: 'Must specify property position.',
-            // },
-            // {
-            //     id: 'dimension',
-            //     desc: 'Optional in another dimension?',
-            //     placeholder: `false`,
-            //     type: InputOptionType.TEXT,
             //     error: 'Must specify property position.',
             // },
             // {
@@ -148,10 +175,12 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
         gatemarker,
         gatemarkersize,
         gateentity,
+        dimension,
         setgaterotation,
+        autotrigger,
+        effect,
         experimentalgate,
         gateposition,
-        dimension,
         ipl,
     ] = results;
 
@@ -186,7 +215,7 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
     let inAnotherDim = false;
     if (!dimension || !dimension.value || dimension.value === 'false') {
         inAnotherDim = false;
-    } else if (dimension.value === 'false') {
+    } else if (dimension.value === 'true') {
         inAnotherDim = true;
     }
 
@@ -201,6 +230,16 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
 
     if (setgaterotation.value === 'true') {
         gateData.rotation = player.rot;
+    }
+
+    if (autotrigger.value === 'true') {
+        gateData.triggerOnEnter = true;
+    } else {
+        gateData.triggerOnEnter = false;
+    }
+
+    if (effect.value) {
+        gateData.effect = effect.value;
     }
 
     if (gatemarker.value === 'none') {

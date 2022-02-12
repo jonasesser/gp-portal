@@ -92,18 +92,18 @@ export interface Gate {
     markerrotate?: boolean;
 
     /**
+     * Range of the interaction
+     * @type {boolean}
+     * @memberof Gate
+     */
+    range?: number;
+
+    /**
      * Removes the marker from creation process.
      * @type {boolean}
      * @memberof Gate
      */
     hidden?: boolean;
-
-    /**
-     * The dimension to display this gate in.
-     * @type {number}
-     * @memberof Gate
-     */
-    dimension?: number;
 
     /**
      * The entity that can use this gate.
@@ -113,6 +113,13 @@ export interface Gate {
     entity?: string;
 
     experimentalgate?: string;
+
+    triggerOnEnter?: boolean;
+
+    /**
+     * portal teleport effect name
+     */
+    effect?: string;
 }
 
 export interface Portal {

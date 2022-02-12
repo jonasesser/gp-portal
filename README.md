@@ -23,12 +23,12 @@ new y-axis = old-y - 1;
 - Expermmental Gates
     - Speed Gate (Exit Speed = Enter Speed)
     - Speed Boost Gate (Exit Speed = 3 x Enter Speed)
+- Dimension and IPL Support (Untested)
 
 
 # Upcoming Features
 
 - Admin menu
-- Dimension and IPL Support
 - Key Support
 - Portals without the need to press E
 

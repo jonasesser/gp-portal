@@ -2,7 +2,7 @@ import * as alt from 'alt-client';
 import * as native from 'natives';
 import { PushVehicle } from '../../client/systems/push';
 import { isAnyMenuOpen } from '../../client/utility/menus';
-import { IWheelItem, WheelMenu } from '../../client/utility/wheelMenu';
+import { IClientWheelItem, WheelMenu } from '../../client/utility/wheelMenu';
 import { InputView } from '../../client/views/input';
 import { PORTAL_GATE_INTERACTIONS } from '../../shared-plugins/gpPortal/enums';
 import { Portal } from '../../shared-plugins/gpPortal/interfaces';
@@ -10,8 +10,11 @@ import { LOCALE_GATE_VIEW } from '../../shared-plugins/gpPortal/locales';
 import { PLAYER_SYNCED_META } from '../../shared/enums/playerSynced';
 import { InputOptionType, InputResult } from '../../shared/interfaces/inputMenus';
 import { GP_Events_Portal } from '../../shared-plugins/gpPortal/events';
+import { PortalSpaceView } from './portalSpaceView';
 
 let currentVehicleSpeed = null;
+
+PortalSpaceView.init();
 
 function initialCheck(): boolean {
     if (alt.Player.local.vehicle) {
@@ -36,7 +39,7 @@ function showMenu(portal: Portal, gateIndex: number) {
 
     const gate = portal.gates[gateIndex];
 
-    const options: IWheelItem[] = [];
+    const options: IClientWheelItem[] = [];
     const playerIdentifier = alt.Player.local.getSyncedMeta(PLAYER_SYNCED_META.DATABASE_ID);
     const isOwner = portal.owner === playerIdentifier;
 
@@ -114,8 +117,19 @@ function showMenu(portal: Portal, gateIndex: number) {
 
 alt.onServer(PORTAL_GATE_INTERACTIONS.SHOW_MENU, showMenu);
 
-alt.onServer(GP_Events_Portal.FadeOut, () => {
+alt.onServer(GP_Events_Portal.SpaceEffect, () => {
+    PortalSpaceView.createView();
+    alt.setTimeout(() => {
+        native.setGameplayCamRelativeHeading(0.0);
+        alt.setTimeout(() => {
+            PortalSpaceView.closeView();
+        }, 2000);
+    }, 2000);
+});
+
+alt.onServer(GP_Events_Portal.FadeEffect, () => {
     native.doScreenFadeOut(200);
+
     alt.setTimeout(() => {
         native.setGameplayCamRelativeHeading(0.0);
         native.doScreenFadeIn(300);

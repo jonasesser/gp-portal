@@ -1,4 +1,4 @@
-import { Vector3 } from '../../shared/interfaces/vector';
+import { Vector3 } from '../../../shared/interfaces/vector';
 
 export interface Gate {
     /**

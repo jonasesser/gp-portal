@@ -40,19 +40,7 @@ See issue tracker for more informations.
 
 https://mygp.gumroad.com/l/portalplugin
     
-2. Copy Folder server-plugins/gpPortal/ to your athena project under src/core/server-plugins/
-3. Import server plugin in src/core/plugins/imports.ts:
-
-    ```import './gpPortal/index';```
-
-4. Copy Folder client-plugins/gpPortal/ to your athena project under src/core/client-plugins/
-5. Import client plugin in src/core/client-plugins/imports.ts:
-
-    ```import './gpPortal/index';```
-
-
-6. Copy Folder shared-plugins/gpPortal/ to your athena project under src/core/shared-plugins/
-
+2. Copy Folder gp-portal to your athena project under src/core/plugins/
 
 # Usage
 

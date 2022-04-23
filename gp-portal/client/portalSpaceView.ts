@@ -1,7 +1,7 @@
 import * as alt from 'alt-client';
-import { WebViewController } from '../../client/extensions/view2';
-import ViewModel from '../../client/models/viewModel';
-import { SYSTEM_EVENTS } from '../../shared/enums/system';
+import { WebViewController } from '../../../client/extensions/view2';
+import ViewModel from '../../../client/models/viewModel';
+import { SYSTEM_EVENTS } from '../../../shared/enums/system';
 
 const PAGE_NAME = 'GPPortal_Space';
 

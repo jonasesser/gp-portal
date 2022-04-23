@@ -1,5 +1,5 @@
 import * as alt from 'alt-server';
-import { PluginSystem } from '../../server/systems/plugins';
+import { PluginSystem } from '../../../server/systems/plugins';
 import { createDefaultPortals } from './portals';
 import { PortalSystem } from './system';
 

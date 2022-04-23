@@ -1,21 +1,16 @@
 import * as alt from 'alt-server';
-import { playerFuncs } from '../../server/extensions/extPlayer';
-import ChatController from '../../server/systems/chat';
-import { PERMISSIONS } from '../../shared/flags/permissionFlags';
-import { InputMenu, InputOptionType, InputResult, SelectOption } from '../../shared/interfaces/inputMenus';
-import { Vector3 } from '../../shared/interfaces/vector';
-import { isFlagEnabled } from '../../shared/utility/flags';
+import { playerFuncs } from '../../../server/extensions/extPlayer';
+import ChatController from '../../../server/systems/chat';
+import { PERMISSIONS } from '../../../shared/flags/permissionFlags';
+import { InputMenu, InputOptionType, InputResult, SelectOption } from '../../../shared/interfaces/inputMenus';
+import { Vector3 } from '../../../shared/interfaces/vector';
+import { isFlagEnabled } from '../../../shared/utility/flags';
 import { PortalSystem } from './system';
-import { MARKER_TYPE } from '../../shared/enums/markerTypes';
-import { Gate, Portal } from '../../shared-plugins/gpPortal/interfaces';
-import { GP_Portal_Enitities } from '../../shared-plugins/gpPortal/enums';
+import { MARKER_TYPE } from '../../../shared/enums/markerTypes';
+import { Gate, Portal } from '../shared/interfaces';
+import { GP_Portal_Enitities } from '../shared/enums';
 
-ChatController.addCommand(
-    'addportal',
-    '/addportal [name] - Adds a portal at current position',
-    PERMISSIONS.ADMIN,
-    addportal,
-);
+ChatController.addCommand('addportal', '/addportal - Adds a portal at current position', PERMISSIONS.ADMIN, addportal);
 
 async function addportal(player: alt.Player) {
     let markerOptions = new Array<SelectOption>();

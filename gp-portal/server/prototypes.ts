@@ -1,6 +1,6 @@
 import * as alt from 'alt-server';
-import { playerFuncs } from '../../server/extensions/extPlayer';
-import { GP_Events_Portal } from '../../shared-plugins/gpPortal/events';
+import { playerFuncs } from '../../../server/extensions/extPlayer';
+import { GP_Events_Portal } from '../shared/events';
 
 declare module 'alt-server' {
     export interface Player {

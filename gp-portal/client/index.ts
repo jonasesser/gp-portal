@@ -1,15 +1,15 @@
 import * as alt from 'alt-client';
 import * as native from 'natives';
-import { PushVehicle } from '../../client/systems/push';
-import { isAnyMenuOpen } from '../../client/utility/menus';
-import { IClientWheelItem, WheelMenu } from '../../client/utility/wheelMenu';
-import { InputView } from '../../client/views/input';
-import { PORTAL_GATE_INTERACTIONS } from '../../shared-plugins/gpPortal/enums';
-import { Portal } from '../../shared-plugins/gpPortal/interfaces';
-import { LOCALE_GATE_VIEW } from '../../shared-plugins/gpPortal/locales';
-import { PLAYER_SYNCED_META } from '../../shared/enums/playerSynced';
-import { InputOptionType, InputResult } from '../../shared/interfaces/inputMenus';
-import { GP_Events_Portal } from '../../shared-plugins/gpPortal/events';
+import { PushVehicle } from '../../../client/systems/push';
+import { isAnyMenuOpen } from '../../../client/utility/menus';
+import { IClientWheelItem, WheelMenu } from '../../../client/utility/wheelMenu';
+import { InputView } from '../../../client/views/input';
+import { PLAYER_SYNCED_META } from '../../../shared/enums/playerSynced';
+import { InputOptionType, InputResult } from '../../../shared/interfaces/inputMenus';
+import { PORTAL_GATE_INTERACTIONS } from '../shared/enums';
+import { GP_Events_Portal } from '../shared/events';
+import { Portal } from '../shared/interfaces';
+import { LOCALE_GATE_VIEW } from '../shared/locales';
 import { PortalSpaceView } from './portalSpaceView';
 
 let currentVehicleSpeed = null;

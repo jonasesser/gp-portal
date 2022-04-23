@@ -1,20 +1,20 @@
 import * as alt from 'alt-server';
 import Database from '@stuyk/ezmongodb';
-import { PORTAL_COLLECTIONS, PORTAL_GATE_INTERACTIONS } from '../../shared-plugins/gpPortal/enums';
-import { ServerMarkerController } from '../../server/streamers/marker';
-import { InteractionController } from '../../server/systems/interaction';
-import { ServerTextLabelController } from '../../server/streamers/textlabel';
-import { deepCloneObject } from '../../shared/utility/deepCopy';
-import { sha256Random } from '../../server/utility/encryption';
-import { SYSTEM_EVENTS } from '../../shared/enums/system';
-import { playerFuncs } from '../../server/extensions/extPlayer';
-import { Gate, GateInternal, Portal, PortalInternal } from '../../shared-plugins/gpPortal/interfaces';
-import { LOCALE_GATE_VIEW } from '../../shared-plugins/gpPortal/locales';
-import { GP_Events_Portal } from '../../shared-plugins/gpPortal/events';
-import { GP_Portal_Enitities } from '../../shared-plugins/gpPortal/enums';
+
 import './cmds';
 import './prototypes';
-import { getForwardVector } from '../../server/utility/vector';
+import { InteractionController } from '../../../server/systems/interaction';
+import { playerFuncs } from '../../../server/extensions/extPlayer';
+import { ServerMarkerController } from '../../../server/streamers/marker';
+import { ServerTextLabelController } from '../../../server/streamers/textlabel';
+import { sha256Random } from '../../../server/utility/encryption';
+import { getForwardVector } from '../../../server/utility/vector';
+import { SYSTEM_EVENTS } from '../../../shared/enums/system';
+import { deepCloneObject } from '../../../shared/utility/deepCopy';
+import { PORTAL_COLLECTIONS, PORTAL_GATE_INTERACTIONS, GP_Portal_Enitities } from '../shared/enums';
+import { GP_Events_Portal } from '../shared/events';
+import { PortalInternal, Portal, GateInternal, Gate } from '../shared/interfaces';
+import { LOCALE_GATE_VIEW } from '../shared/locales';
 
 let nextDimension = 1000000;
 let isInitializing = true;

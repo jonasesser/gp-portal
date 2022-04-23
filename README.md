@@ -6,7 +6,7 @@ This Plugin creates portals where the player can port/beam from one place to ano
 
 # Version Update Information
 
-Current Version: 1.1
+Current Version: 1.2
 
 If you update from Version 1.0 to 1.1 you must change the y-axis for all already existing portals.
 new y-axis = old-y - 1;

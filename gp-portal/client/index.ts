@@ -2,10 +2,11 @@ import * as alt from 'alt-client';
 import * as native from 'natives';
 import { PushVehicle } from '../../../client/systems/push';
 import { isAnyMenuOpen } from '../../../client/utility/menus';
-import { IClientWheelItem, WheelMenu } from '../../../client/utility/wheelMenu';
 import { InputView } from '../../../client/views/input';
+import { WheelMenu } from '../../../client/views/wheelMenu';
 import { PLAYER_SYNCED_META } from '../../../shared/enums/playerSynced';
 import { InputOptionType, InputResult } from '../../../shared/interfaces/inputMenus';
+import { IWheelOptionExt } from '../../../shared/interfaces/wheelMenu';
 import { PORTAL_GATE_INTERACTIONS } from '../shared/enums';
 import { GP_Events_Portal } from '../shared/events';
 import { Portal } from '../shared/interfaces';
@@ -39,7 +40,7 @@ function showMenu(portal: Portal, gateIndex: number) {
 
     const gate = portal.gates[gateIndex];
 
-    const options: IClientWheelItem[] = [];
+    const options: IWheelOptionExt[] = [];
     const playerIdentifier = alt.Player.local.getSyncedMeta(PLAYER_SYNCED_META.DATABASE_ID);
     const isOwner = portal.owner === playerIdentifier;
 
@@ -112,7 +113,7 @@ function showMenu(portal: Portal, gateIndex: number) {
         }
     });
 
-    WheelMenu.create(portal.name + ': ' + gate.name, options, true);
+    WheelMenu.open(portal.name + ': ' + gate.name, options, true);
 }
 
 alt.onServer(PORTAL_GATE_INTERACTIONS.SHOW_MENU, showMenu);

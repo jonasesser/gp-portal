@@ -1,6 +1,6 @@
 # altv-athena-plugin-portal
 
-![Alt text](pic2.png?raw=true "portal plugin")
+![Alt text](https://github.com/jonasesser/gp-portal/blob/main/pic2.png?raw=true "portal plugin")
 
 This Plugin creates portals where the player can port/beam from one place to another.
 
@@ -58,7 +58,7 @@ https://youtu.be/7Nygyl0uFA0
 
 5. Player Menu (Only visible if portal has more than 2 gates)
 
-![Alt text](playermenu.png?raw=true "player menu")
+![Alt text](https://github.com/jonasesser/gp-portal/blob/main/playermenu.png?raw=true "player menu")
 
 # Feedback
 

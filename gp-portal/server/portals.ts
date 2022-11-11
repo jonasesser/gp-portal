@@ -1,3 +1,4 @@
+import * as alt from 'alt-server';
 import { PortalSystem } from './system';
 
 export async function createDefaultPortals() {
@@ -8,11 +9,11 @@ export async function createDefaultPortals() {
         gates: [
             {
                 name: 'ground',
-                position: { x: -66.35212707519531, y: -802.2488403320312, z: 44.22731399536133 - 1 },
+                position: new alt.Vector3({ x: -66.35212707519531, y: -802.2488403320312, z: 44.22731399536133 - 1 }),
             },
             {
                 name: 'roof',
-                position: { x: -75.32481384277344, y: -824.5822143554688, z: 321.2919006347656 - 1 },
+                position: new alt.Vector3({ x: -75.32481384277344, y: -824.5822143554688, z: 321.2919006347656 - 1 }),
             },
         ],
     });

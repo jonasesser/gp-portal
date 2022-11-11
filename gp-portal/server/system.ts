@@ -160,7 +160,7 @@ export class PortalSystem {
             range: gaterange,
             isVehicleOnly: isVehicleOnly,
             isPlayerOnly: isPlayerOnly,
-            triggerOnEnter: triggerOnEnter,
+            triggerCallbackOnEnter: triggerOnEnter,
             debug: false,
         });
 

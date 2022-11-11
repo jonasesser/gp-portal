@@ -3,12 +3,12 @@ import { playerFuncs } from '../../../server/extensions/extPlayer';
 import ChatController from '../../../server/systems/chat';
 import { PERMISSIONS } from '../../../shared/flags/permissionFlags';
 import { InputMenu, InputOptionType, InputResult, SelectOption } from '../../../shared/interfaces/inputMenus';
-import { Vector3 } from '../../../shared/interfaces/vector';
 import { isFlagEnabled } from '../../../shared/utility/flags';
 import { PortalSystem } from './system';
 import { MARKER_TYPE } from '../../../shared/enums/markerTypes';
 import { Gate, Portal } from '../shared/interfaces';
 import { GP_Portal_Enitities } from '../shared/enums';
+import { Vector3 } from 'alt-server';
 
 ChatController.addCommand('addportal', '/addportal - Adds a portal at current position', PERMISSIONS.ADMIN, addportal);
 
@@ -192,7 +192,7 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
     let gatePos: Vector3;
 
     if (!gateposition || !gateposition.value) {
-        gatePos = { x: player.pos.x, y: player.pos.y, z: player.pos.z - 1 };
+        gatePos = new Vector3({ x: player.pos.x, y: player.pos.y, z: player.pos.z - 1 });
     } else {
         try {
             gatePos = JSON.parse(gateposition.value);

@@ -1,6 +1,5 @@
 import * as alt from 'alt-server';
 import * as Athena from '@AthenaServer/api';
-import { isFlagEnabled } from '../../../shared/utility/flags';
 import { PortalSystem } from './system';
 import { MARKER_TYPE } from '../../../shared/enums/markerTypes';
 import { Gate, Portal } from '../shared/interfaces';
@@ -12,6 +11,7 @@ import {
     InputResult,
     SelectOption,
 } from '@AthenaPlugins/gp-athena-utils/shared/interfaces/inputMenus';
+import { GP_Events_Portal } from '../shared/events';
 
 //TODO: Replace Menu!
 
@@ -152,14 +152,14 @@ async function addportal(player: alt.Player, arg1: string) {
             //     type: InputOptionType.TEXT,
             // },
         ],
-        serverEvent: 'cmd:Create:Portal',
+        serverEvent: GP_Events_Portal.CreatePortal,
     };
 
     const gpUtils = await Athena.systems.plugins.useAPI('gputils');
     gpUtils.inputMenu(player, menu);
 }
 
-alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResult[]) => {
+alt.onClient(GP_Events_Portal.CreatePortal, async (player: alt.Player, results: InputResult[]) => {
     if (!results) {
         return;
     }
@@ -246,9 +246,11 @@ alt.onClient('cmd:Create:Portal', async (player: alt.Player, results: InputResul
     }
     //Get Existing Portal gates
     let portal = await PortalSystem.getByName(name.value);
+    alt.logWarning('Existing Portalgate: ' + JSON.stringify(portal));
     let uid = null;
     if (portal) {
         uid = portal.uid;
+        alt.logWarning('Add Gate: ' + JSON.stringify(gateData));
         PortalSystem.addGate(portal, gateData);
     } else {
         let gates = new Array<Gate>();

@@ -120,6 +120,16 @@ export interface Gate {
      * portal teleport effect name
      */
     effect?: string;
+
+    /**
+     * Icon of menu button
+     * @type {string}
+     * @memberof Gate
+     * @example icon-engine-fill
+     *
+     */
+    icon?: string;
+    color?: string;
 }
 
 export interface Portal {

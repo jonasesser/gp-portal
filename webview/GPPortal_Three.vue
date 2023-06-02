@@ -130,7 +130,7 @@ export default defineComponent({
         },
         particleSetup() {
             let loader = new window['THREE'].TextureLoader();
-            loader.load('/src/pages/gpPortal/img/smoke.png', this.loadParticles);
+            loader.load('./smoke.png', this.loadParticles);
         },
         loadParticles(texture) {
             let portalGeo = new window['THREE'].PlaneBufferGeometry(350, 350);

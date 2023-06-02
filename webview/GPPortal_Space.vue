@@ -125,7 +125,7 @@ p {
     margin-top: -1000px;
     margin-left: -1000px;
     opacity: 0.5;
-    background: url(/src/pages/gpPortal/img/fog.png) repeat-x 0 center;
+    background: url(./fog.png) repeat-x 0 center;
     -webkit-animation-name: fogAnimation;
     -webkit-animation-duration: 30s;
     -webkit-animation-iteration-count: infinite;
@@ -155,7 +155,7 @@ p {
     width: 800px;
     height: 800px;
     margin: -400px 0 0 -400px;
-    background: url(/src/pages/gpPortal/img/glow.png) repeat-x 0 0;
+    background: url(./glow.png) repeat-x 0 0;
     -webkit-animation-name: glowAnimation;
     -webkit-animation-duration: 5s;
     -webkit-animation-iteration-count: infinite;
@@ -181,7 +181,7 @@ p {
     width: 800px;
     height: 800px;
     margin: -400px 0 0 -400px;
-    background: url(/src/pages/gpPortal/img/light.png) no-repeat center center;
+    background: url(./light.png) no-repeat center center;
     -webkit-animation-name: lightAnimation;
     -webkit-animation-duration: 1s;
     -webkit-animation-iteration-count: infinite;
@@ -210,7 +210,7 @@ p {
     width: 600px;
     height: 600px;
     margin: -300px 0 0 -300px;
-    background: url(/src/pages/gpPortal/img/stars-large.png) no-repeat center center;
+    background: url(./stars-large.png) no-repeat center center;
     -webkit-animation-name: starsLarge;
     -webkit-animation-duration: 60s;
     -webkit-animation-iteration-count: infinite;
@@ -248,7 +248,7 @@ p {
 
 #small-stars,
 #small-stars-2 {
-    background: url(/src/pages/gpPortal/img/stars-small.png) no-repeat center center;
+    background: url(./stars-small.png) no-repeat center center;
     -webkit-animation-duration: 15s;
     -webkit-animation-name: starsSmall;
 }

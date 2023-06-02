@@ -104,7 +104,9 @@ function showMenu(portal: Portal, gateIndex: number) {
     portal.gates.forEach(function (item, index) {
         if (item.name != gate.name) {
             options.push({
-                name: `~b~${item.name}`,
+                name: item.name,
+                icon: item.icon ? item.icon : 'icon-engine-fill',
+                color: item.color ? item.color : 'green',
                 callback: () => {
                     alt.emitServer(PORTAL_GATE_INTERACTIONS.PORT, portal.uid, gateIndex, index);
                 },
@@ -112,7 +114,7 @@ function showMenu(portal: Portal, gateIndex: number) {
         }
     });
 
-    AthenaClient.systems.wheelMenu.open(portal.name + ': ' + gate.name, options);
+    AthenaClient.systems.wheelMenu.open(portal.name + ' - ' + gate.name, options);
 }
 
 alt.onServer(PORTAL_GATE_INTERACTIONS.SHOW_MENU, showMenu);

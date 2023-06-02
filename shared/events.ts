@@ -4,4 +4,6 @@ export enum GP_Events_Portal {
     SaveCurrentVehicleSpeed = 'gpPortal:saveCurrentVehicleSpeed',
     FadeEffect = 'gpPortal:effectFade',
     SpaceEffect = 'gpPortal:effectSpace',
+    CreatePortal = 'gpPortal:cmdCreatePortal',
+    CreateGate = 'gpPortal:cmdCreateGate',
 }

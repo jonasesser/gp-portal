@@ -21,28 +21,34 @@ export class nightclub implements IPLConfig {
         alt.logWarning('Loading Nightclub IPL Config');
         IPLLoader.EnableIpls(IPLS);
 
+        // Int01_ba_Style01, Int01_ba_Style02 oder Int01_ba_Style03
+
         IPLLoader.EnableIpl('ba_barriers_case0');
 
-        // //Load Posters
-        IPLLoader.EnableIpl('maddona');
+        //Load Posters
+        IPLLoader.EnableIpl('ba_case_0_maddona');
 
         //Club names
-        IPLLoader.SetIplProp(271617, 'studio', true);
+        IPLLoader.SetIplProp(271617, 'Int01_ba_clubname_01', true);
 
-        //Styles
-        IPLLoader.SetIplProp(271617, 'edgy', true);
+        //Styles:
+        IPLLoader.SetIplProp(271617, 'Int01_ba_Style01', true);
+
+        //Podiumstyle
+        IPLLoader.SetIplProp(271617, 'Int01_ba_Style01_podium', true);
 
         //Speakers
         IPLLoader.SetIplProp(271617, 'Int01_ba_equipment_setup', true);
         IPLLoader.SetIplProp(271617, 'Int01_ba_equipment_upgrade', true);
 
         //Security Update
+        IPLLoader.SetIplProp(271617, 'Int01_ba_security_upgrade', true);
 
         //Turntables
         IPLLoader.SetIplProp(271617, 'Int01_ba_dj04', true);
 
         //Lights
-        IPLLoader.SetIplProp(271617, 'Laser_purple', true);
+        IPLLoader.SetIplProp(271617, 'DJ_03_Lights_02', true);
 
         IPLLoader.SetIplProp(271617, 'Int01_ba_bar_content', true);
         IPLLoader.SetIplProp(271617, 'Int01_ba_trophy03', true);

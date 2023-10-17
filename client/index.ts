@@ -11,10 +11,12 @@ import { PortalSpaceView } from './portalSpaceView';
 import { PushVehicle } from '@AthenaPlugins/gp-athena-utils/client/src/systems/push';
 import { InputView } from '@AthenaPlugins/gp-athena-utils/client/src/views/input';
 import { InputOptionType, InputResult } from '@AthenaPlugins/gp-athena-utils/shared/interfaces/inputMenus';
+import { IPLLoader } from './iplloader';
 
 let currentVehicleSpeed = null;
 
 PortalSpaceView.init();
+IPLLoader.init();
 
 function initialCheck(): boolean {
     if (alt.Player.local.vehicle) {

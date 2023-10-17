@@ -2,6 +2,7 @@ import * as alt from 'alt-server';
 import * as Athena from '@AthenaServer/api';
 import Database from '@stuyk/ezmongodb';
 
+import './player';
 import './cmds';
 import './prototypes';
 import { SYSTEM_EVENTS } from '../../../shared/enums/system';
@@ -36,6 +37,49 @@ export class PortalSystem {
         isInitializing = false;
 
         alt.onClient(PORTAL_GATE_INTERACTIONS.PORT, PortalSystem.portToGate);
+        Athena.player.events.on('selected-character', PortalSystem.spawn);
+    }
+
+    /**
+     * Spawn the player to a gate if they were in an gate before.
+     * @static
+     * @param {alt.Player} player
+     * @return {*}
+     * @memberof InternalSystem
+     */
+    static spawn(player: alt.Player) {
+        if (!player || !player.data || !player.valid) {
+            return;
+        }
+        alt.logWarning('gp-portal spawn portalUID: ' + player.data.portalUID + ' portalEntraceIndex: ' + player.data.portalEntraceIndex + ' portalExitIndex: ' + player.data.portalExitIndex);
+
+        // Force the player into the portal gate they were last in.
+        if (player.data.portalUID && player.data.portalEntraceIndex >= 0 && player.data.portalExitIndex >= 0) {
+            alt.logWarning('gp-portal spawn portalUID2: ' + player.data.portalUID + ' portalEntraceIndex: ' + player.data.portalEntraceIndex + ' portalExitIndex: ' + player.data.portalExitIndex);
+            PortalSystem.movePlayerIn(
+                player,
+                player.data.portalUID,
+                player.data.portalEntraceIndex,
+                player.data.portalExitIndex,
+            );
+        }
+    }
+
+    static async movePlayerIn(
+        player: alt.Player,
+        uid: string,
+        portalEntraceIndex: number,
+        portalExitIndex: number,
+    ): Promise<boolean> {
+        alt.logWarning('gp-portal movePlayerIn with correct dimension');
+        const portal = await PortalSystem.get(uid);
+        if (!portal) {
+            return false;
+        }
+
+        PortalSystem.portToGate(player, uid, portalEntraceIndex, portalExitIndex);
+
+        return true;
     }
 
     /**
@@ -329,11 +373,21 @@ export class PortalSystem {
         let entrance = portal.gatesInternal[entranceIndex];
         let exit = portal.gatesInternal[exitIndex];
 
-        if (exit.ipl) {
+        if (exit.ipl && !exit.iplConfig) {
             alt.emitClient(player, SYSTEM_EVENTS.IPL_LOAD, exit.ipl);
+        } else if (exit.iplConfig) {
+            alt.emitClient(player, GP_Events_Portal.LoadIPL, exit.ipl, exit.iplConfig);
+        }
+
+        if (entrance.ipl && !entrance.iplConfig) {
+            alt.emitClient(player, SYSTEM_EVENTS.IPL_UNLOAD, entrance.ipl);
+        } else if (entrance.iplConfig) {
+            alt.emitClient(player, GP_Events_Portal.UnloadIPL, entrance.ipl, entrance.iplConfig);
         }
 
         player.frozen = true;
+
+        
 
         let exitposition = new alt.Vector3(exit.position.x, exit.position.y, exit.position.z + 0.75);
         let exitrotation = null;
@@ -405,6 +459,16 @@ export class PortalSystem {
             if (!exit.experimentalgate || exit.experimentalgate === 'none') {
                 player.setPortalPositionKeepVehicle(exitposition, exitrotation, exit.dimension, entrance.effect);
             }
+        }
+
+        if (exit.dimension != 0) {
+            Athena.document.character.set(player, 'portalUID', portal.uid);
+            Athena.document.character.set(player, 'portalEntraceIndex', entranceIndex);
+            Athena.document.character.set(player, 'portalExitIndex', exitIndex);
+        } else {
+            Athena.document.character.set(player, 'portalUID', null);
+            Athena.document.character.set(player, 'portalEntraceIndex', null);
+            Athena.document.character.set(player, 'portalExitIndex', null);
         }
 
         // Freeze Player for exit gate Loading

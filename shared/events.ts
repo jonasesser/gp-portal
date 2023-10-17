@@ -6,4 +6,6 @@ export enum GP_Events_Portal {
     SpaceEffect = 'gpPortal:effectSpace',
     CreatePortal = 'gpPortal:cmdCreatePortal',
     CreateGate = 'gpPortal:cmdCreateGate',
+    LoadIPL = 'gpPortal:LoadIPL',
+    UnloadIPL = 'gpPortal:UnloadIPL',
 }

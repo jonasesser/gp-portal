@@ -1,4 +1,5 @@
 import { Vector3 } from 'alt-shared';
+import { PORTAL_IPL_CONFIG } from './enums';
 
 export interface Gate {
     /**
@@ -28,6 +29,13 @@ export interface Gate {
      * @memberof Gate
      */
     ipl?: string;
+
+    /**
+     * Optional IPL configration associate with this gate.
+     * @type {string}
+     * @memberof Gate
+     */
+    iplConfig?: PORTAL_IPL_CONFIG;
 
     /**
      * Is this portals gate currently unlocked?
